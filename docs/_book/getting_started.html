@@ -1,0 +1,285 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Getting Started · GitBook</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.1.1">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2" data-path="getting_started.html">
+            
+                <a href="getting_started.html">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Getting Started</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="getting-started">Getting Started</h1>
+<h2 id="step-1---installing-fetchframe">Step 1 - Installing FetchFrame</h2>
+<p>The first step is installing FetchFrame via NPM</p>
+<pre><code class="lang-sh">npm install --save fetchframe
+</code></pre>
+<p>As we have a dependancy on DataLoader you should also be aware that we require an implementation of the ES6 Map and ES6 Promise specification, which you should polyfill if necessary.</p>
+<h2 id="step-2---creating-a-schema">Step 2 - Creating a Schema</h2>
+<p>FetchFrame is centered around two fundamental concepts - a Frame and a Schema.</p>
+<p>A Frame is a class that can be initialized for each request. Frames take a Schema and a Context as arguments which allows them to initialize a new set of interlinked DataLoader cache&apos;s for each request.</p>
+<p>However to create a Frame we first need a Schema. The Schema is an object that lays out individual resources in your DataLayer, the &quot;dimensions&quot; you wish to query them by and methods for caching items.</p>
+<p>Let&apos;s see how this works by creating a new Schema for a simple web application.</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { Schema } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;fetchframe&quot;</span>
+
+<span class="hljs-keyword">let</span> mySchema = <span class="hljs-keyword">new</span> Schema({
+  resources: {
+    User: {
+      dimensions: {
+        id: {
+          dimensionKey: (user_object) =&gt; user_object.id,
+          retrieve: (query) =&gt; {
+          <span class="hljs-comment">/*
+             Do any pre processing you wish for query
+             you could even query different databases
+             if you need to do multi database sharding;
+             For example if each application tennant
+             uses a unique database.
+           */</span>
+
+            <span class="hljs-keyword">return</span> MyDatabase.getUsersByIds(query)
+          }
+        },
+        email_address: {
+          dimensionKey: (user_object) =&gt; user_object.name.email_address,
+          retrieve: (query) =&gt; MyDatabase.getUsersByEmails(query)
+        }
+      },
+      cache: <span class="hljs-literal">true</span>
+    }
+  }
+})
+</code></pre>
+<p>Okay so what does all of this mean?</p>
+<p>The full documentation for the Schema constructor is provided below but from a high level we have told our application this: We have a type called User, we want to be able to <strong>query and retrieve</strong> that type using two possible dimensions ID and First Name. We then provided the dimensionKey field for each dimension. This maps an object of the Type, in our case User, to the key that would returned the same object for this query.</p>
+<p>The dimensionKey is used to populate the cache of each dimension with a response to any dimension in the Type. For example if a user was retrieved by ID in the above example - they would also get cached by their email_address in the email_address dimension loader reducing the amount of wiring needed to use the original DataLoader system effectively.</p>
+<h2 id="step-3---creating-a-frame">Step 3 - Creating a Frame</h2>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev navigation-unique" aria-label="Previous page: Introduction">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Getting Started","level":"1.2","depth":1,"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"README.md","ref":"README.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"getting_started.md","mtime":"2016-06-17T12:41:00.000Z","type":"markdown"},"gitbook":{"version":"3.1.1","time":"2016-06-17T12:34:16.170Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-livereload/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
