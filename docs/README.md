@@ -1,1 +1,1 @@
-SUMMARY.md
+docs/SUMMARY.md
