@@ -58,3 +58,88 @@ The full documentation for the Schema constructor is provided below but from a h
 The dimensionKey is used to populate the cache of each dimension with a response to any dimension in the Type. For example if a user was retrieved by ID in the above example - they would also get cached by their email_address in the email_address dimension loader reducing the amount of wiring needed to use the original DataLoader system effectively.
 
 ## Step 3 - Creating a Frame
+
+A Frame is essentially a disposable instance of a Schema that represents a unique context and cache.
+
+Frames are designed to accept a context primarily to serve authentication and multi tenant use cases. Let's take a look at an example:
+
+```javascript
+import Schema from "./schema.js"
+import { Frame } from "fetchframe"
+
+export let FrameMiddleware = (req, res, next) => {
+
+  // Create a context for the DataFrame - you can pass any information you want to the context - although passing req itself is a bit of an anti pattern.
+  let context = {
+      authenticated_user: req.authenticatedUser,
+      Marco: "Polo",
+      ip: req.ip
+  }
+
+  let frame = new DataFrame(Schema, context)
+
+  req.DataStore = frame
+
+}
+```
+
+## Step 4 - Querying using the DataStore
+
+Now that we have a Frame setup let's see how we can make queries to the underlying types themselves
+
+```javascript
+
+export let requestHandler = (req, res) => {
+
+  let email_address = req.query.email_address
+
+  let resultPromise = req.DataStore.User.loadByEmailAddress(email_address)
+
+  resultPromise
+    .then((user) => {
+
+      /*
+       This returns instantly and does not start a fetch request
+       because the result has already been cached at the data layer
+       even though it was queried by another dimension
+      */
+      return req.DataStore.User.loadById(user.id)
+
+    })
+    .then((user) => {
+
+      res.render('a template', { user })
+
+    })
+
+}
+
+```
+
+What just happened? Where did that method come from? FetchFrame will automatically create CamelCased handlers for your Frame that make it really easy to load data by the dimensions defined. All of this comes with the benefit of being automatically cached and making the minimum number of database calls possible to speed up your application!
+
+Dimension names are camel cased for the function so you should take care not to overlap your dimension names for a given type. If you do an error will be thrown at Schema creation time - so you won't be able to start your app.
+
+## Step 5 - Marking a mutation
+
+The caching layer in FetchFrame is a small wrapper around the normal DataLoader caching system in the original facebook library. To make life a bit easier it automatically handles cache storage across your dimensions for the same type.
+
+One place this becomes troublesome is when you want to load an object, thus adding it to the cache, then modify it and fetch it again ( for some reason ) - this can be resolved by providing the item and marking it as dirt like so:
+
+```javascript
+DataStore.User.markDirty(user)
+```
+
+It should be noted that you will need to provide an object that provides all the necessary dimensionKeys - If a dimension key returns an undefined value the item will not be cleared from that particular dimensions cache which could lead to inconsistencies.
+
+Finally you can destroy the cache of your Frame if you need to - perhaps if you use a long lived connection like a WebSocket and want to regularly clear your cache to reduce memory use?
+
+You can do this as follows:
+
+```javascript
+DataStore.User.clearAll()
+```
+
+## All Done - Thanks for reading
+
+Congratulations! You are now familiar with the basics of FetchFrame. It is highly recommended that you read the API docs and the specific documentation for Frame and Schema before using it in production - but if you are the hacker type you should have enough to run with!
