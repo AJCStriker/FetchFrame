@@ -80,7 +80,10 @@ export class DataType {
 
                     let dimensionKey = dimension._framefetch_config.dimensionKey(object)
 
-                    dimension.clear(dimensionKey).prime(dimensionKey, object)
+                    // JSONify the dimension key
+                    let serializedDimensionKey = JSON.stringify(dimensionKey)
+
+                    dimension.clear(serializedDimensionKey).prime(serializedDimensionKey, object)
 
                 }
 
