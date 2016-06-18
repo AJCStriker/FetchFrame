@@ -32,6 +32,8 @@ export class DataType {
             // Extract information from the pair
             let [dimensionName, dimensionConfig] = dimensionConfigPair
 
+            dimensionConfig.name = dimensionName
+
             // Verify that the dimension configuration contains a retrieve function
             if ( typeof dimensionConfig.retrieve !== "function" ) {
                 throw new Error("Unable to create dimension " + dimensionName + " as the provided retrieve value was not a function.")
@@ -54,7 +56,9 @@ export class DataType {
                 cacheKeyFn: (key) => JSON.stringify(key)
             })
 
+            loader._framefetch_config = dimensionConfig
 
+            return loader
 
         })
     }
@@ -65,13 +69,85 @@ export class DataType {
      * @param object Received object
      * @private
      */
-    _notifyUpdate(object) {}
+    _notifyUpdate(object) {
 
-    loadBy(dimension, query) {}
+        if ( this.cache ) {
 
-    loadManyBy(dimension, query) {}
+            // Iterate over every dimension - if caching is enabled then run through dimension key and add to the cache
+            _.forEach(this.dimensions, (dimension) => {
 
-    markDirty(object) {}
+                if ( dimension._framefetch_config.cache ) {
 
-    nuke() {}
+                    let dimensionKey = dimension._framefetch_config.dimensionKey(object)
+
+                    dimension.clear(dimensionKey).prime(dimensionKey, object)
+
+                }
+
+            })
+
+        }
+
+    }
+
+    _handleError(dimension, key, error) {
+
+        // Determine if the error is transient
+        if ( dimension._framefetch_config.isTransientError(error) ) {
+            dimension.clear(key)
+        } else {
+            throw error
+        }
+
+    }
+
+    loadBy(dimension, query) {
+
+        // Find the dimension
+        let loader = _.find(this.dimensions, (testDimension) => testDimension._framefetch_config.name === dimension )
+
+        loader.load(query)
+            .then((result) => {
+                this._notifyUpdate(result)
+            })
+            .catch((error) => {
+                this._handleError(loader, query, error)
+            })
+    }
+
+    loadManyBy(dimension, queries) {
+
+        return Promise.all(_.map(queries, (query) => {
+
+            return this.loadBy(dimension, query)
+
+        }))
+
+    }
+
+    markDirty(object) {
+
+        _.forEach(this.dimensions, (dimension) => {
+
+            if ( dimension._framefetch_config.cache ) {
+
+                let dimensionKey = dimension._framefetch_config.dimensionKey(object)
+
+                dimension.clear(dimensionKey)
+
+            }
+
+        })
+
+    }
+
+    nuke() {
+
+        _.forEach(this.dimensions, (dimension) => {
+
+            dimension.clearAll()
+
+        })
+
+    }
 }
