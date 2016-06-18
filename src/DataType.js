@@ -77,13 +77,9 @@ export class DataType {
             // Iterate over every dimension - if caching is enabled then run through dimension key and add to the cache
             _.forEach(this.dimensions, (dimension) => {
 
-                if ( dimension._framefetch_config.cache ) {
+                let dimensionKey = dimension._framefetch_config.dimensionKey(object)
 
-                    let dimensionKey = dimension._framefetch_config.dimensionKey(object)
-
-                    dimension.clear(dimensionKey).prime(dimensionKey, object)
-
-                }
+                dimension.clear(dimensionKey).prime(dimensionKey, object)
 
             })
 
@@ -109,7 +105,9 @@ export class DataType {
 
         return loader.load(query)
             .then((result) => {
-                this._notifyUpdate(result)
+                if ( dimension._framefetch_config.isTransientError(error) ) {
+                    this._notifyUpdate(result)
+                }
 
                 return result
             })
