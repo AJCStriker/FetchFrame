@@ -137,7 +137,7 @@ Finally you can destroy the cache of your Frame if you need to - perhaps if you 
 You can do this as follows:
 
 ```javascript
-DataStore.User.clearAll()
+DataStore.User.nuke()
 ```
 
 ## All Done - Thanks for reading
