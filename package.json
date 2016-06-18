@@ -3,10 +3,16 @@
   "version": "0.0.1",
   "description": "FetchFrame is a authentication and resource concious data access framework designed for use in Node.JS Web Servers",
   "author": "Alexander Christie <alex@briefly.io>",
-  "contributors": [{
-    "name": "Alexander Christie",
-    "email": "alex@briefly.io"
-  }],
+  "contributors": [
+    {
+      "name": "Alexander Christie",
+      "email": "alex@briefly.io"
+    }
+  ],
   "license": "MIT",
-
+  "dependencies": {
+    "camelcase": "^3.0.0",
+    "dataloader": "^1.2.0",
+    "lodash": "^4.13.1"
+  }
 }

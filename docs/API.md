@@ -54,6 +54,18 @@ The Frame will automatically generate helper methods for each dimension. The fol
 DataStore.User.loadBy("id", 15) === DataStore.User.loadById(15)
 ```
 
+### loadManyBy(dimension: String, queries: [String])
+
+Query for several DataTypes using the specified dimension and queries.
+
+**dimension**
+
+`dimension` is a string representing the dimension to query
+
+**queries**
+
+`query` is an array representing the key's with which you wish to query the dimension.
+
 ### markDirty(object: Object)
 
 Provide a Object of the data type that can be mapped using the dimension keys for the Schema. This will be run through each dimension key function and then invalidated from the dimension cache accordingly.
