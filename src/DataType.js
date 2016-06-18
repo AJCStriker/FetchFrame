@@ -106,7 +106,7 @@ export class DataType {
         // Find the dimension
         let loader = this.getDimensionByName(dimension)
 
-        loader.load(query)
+        return loader.load(query)
             .then((result) => {
                 this._notifyUpdate(result)
             })
