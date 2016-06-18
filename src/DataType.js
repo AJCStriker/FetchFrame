@@ -104,7 +104,7 @@ export class DataType {
     loadBy(dimension, query) {
 
         // Find the dimension
-        let loader = _.find(this.dimensions, (testDimension) => testDimension._framefetch_config.name === dimension )
+        let loader = this.getDimensionByName(dimension)
 
         loader.load(query)
             .then((result) => {
@@ -148,6 +148,12 @@ export class DataType {
             dimension.clearAll()
 
         })
+
+    }
+
+    getDimensionByName(name) {
+
+        return _.find(this.dimensions, (dimension) => dimension._framefetch_config.name === name )
 
     }
 }
