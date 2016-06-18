@@ -13,7 +13,7 @@ Test are run on Codeship's Docker platform - all PRs must pass linting, unit tes
 
 [Getting Started](docs/getting_started.md)
 
-[API Documentation](docs/api.md)
+[API Documentation](docs/API.md)
 
 ## Contributing
 
