@@ -41,7 +41,7 @@ let mySchema = new Schema({
           }
         },
         email_address: {
-          dimensionKey: (user_object) => user_object.name.email_address,
+          dimensionKey: (user_object) => user_object.email_address,
           retrieve: (query) => MyDatabase.getUsersByEmails(query)
         }
       },
