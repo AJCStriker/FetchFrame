@@ -89,7 +89,7 @@ The Schema is where most of the "magic" happens allowing the necessary wiring to
           dimensionKey: (user_object) => user_object.id,
           batch: true,
           cache: true,
-          retrieve: (query, context, arguments) => getUsersByIds(query)
+          retrieve: (query, context) => getUsersByIds(query)
         }
       },
       cache: true
@@ -108,6 +108,8 @@ Each resource object can have the following settings:
 
 **resource.cache** - Controls whether this object will be cached at all. This is useful if for some reason you wish to fetch information separately each time you need it.
 
+Defaults to true.
+
 **resource.dimensions** - Dimensions is a JSON object where each key is a dimension by which the DataType can be queried and cached. The format of the Dimension object can be found below.
 
 **resource.dimensions[].dimensionKey** - The dimensionKey is a function that takes a complete object of the form returned by the retrieve function and returns an Immutable object that fulfills equality comparison via ```===```. Normally this will be a string but anything that for the same input will return an exactly equal response can be used.
@@ -121,6 +123,8 @@ Note currently that Objects and Maps do not work but we would like to find a way
 The default setting is true and there are no use cases we are aware of at this time where it is necessary to disable batching. It is carried forward into this library out of respect for Facebook's undoubtedly superior minds thinking it's needed. If you do have a use case for this please let us know by opening an issue explaining how you are using it!
 
 **resource.dimensions[].cache** - The Cache flag is used to mark this particular dimension as being un-cacheable - particularly useful for situations where you want to return multiple items for a given query which would otherwise interfere with the cache due to the non standard format. This does not disable the underlying cache on DataLoader it only disables the cross caching mechanism meaning that calls to the same dimension will still be served from the cache if possible.
+
+The default settings is true.
 
 **resource.dimensions[].retrieve** - The Retrieve function is used to accept an array of query terms for the given dimension and return an array of promises, in the same order as the argument array, which resolve to the end value of the DataType.
 

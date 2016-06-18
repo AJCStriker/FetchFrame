@@ -3,17 +3,63 @@
 FetchFrame is an easy to use, resource based system for using Facebook's [DataLoader](https://github.com/facebook/dataloader) library which makes it easier to handle per request permissions
 and caching in a more terse way.
 
-## Tests
+```javascript
+npm install --save fetchframe
+```
 
-Test are run on Codeship's Docker platform - all PRs must pass linting, unit tests and Node Security Project validations.
+## Example
 
-[Current Status Badge]()
+```javascript
+import { Frame, Schema } from "fetchframe"
+
+// Create a Schema
+let mySchema = new Schema({
+    resources: {
+      User: {
+        dimensions: {
+          id: {
+            dimensionKey: (user_object) => user_object.id,
+            retrieve: (query, context) => {
+
+              if ( context.ip === "0.0.0.0") {
+                return getAllUsersByIds(query)
+              } else {
+                return getSomeUsersByIds(query)
+              }
+
+            }
+          }
+        }
+      }
+    }
+})
+
+let firstFrame = new Frame(mySchema, {
+  authenticationToken: "person1",
+  ip: "192.168.1.1"
+})
+
+firstFrame.User.loadById(1)
+  .then((user) => {
+    // User is fetched and cached, with the correct permission
+    // level from the datastore for the lifetime of the frame!
+  })
+
+```
+
+The above is just a quick example of how the system works - read the [Getting Started](docs/getting_started.md) Guide to learn more!
 
 ## Documentation
 
 [Getting Started](docs/getting_started.md)
 
 [API Documentation](docs/API.md)
+
+## Tests
+
+Test are run on Codeship's Docker platform - all PRs must pass linting, unit tests and Node Security Project validations.
+
+[Current Status Badge]()
 
 ## Contributing
 

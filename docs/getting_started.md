@@ -28,7 +28,7 @@ let mySchema = new Schema({
       dimensions: {
         id: {
           dimensionKey: (user_object) => user_object.id,
-          retrieve: (query) => {
+          retrieve: (query, context) => {
           /*
              Do any pre processing you wish for query
              you could even query different databases
