@@ -1,6 +1,6 @@
 {
   "name": "fetchframe",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "FetchFrame is a authentication and resource concious data access framework designed for use in Node.JS Web Servers",
   "author": "Alexander Christie <alex@briefly.io>",
   "scripts": {
