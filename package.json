@@ -4,7 +4,8 @@
   "description": "FetchFrame is a authentication and resource concious data access framework designed for use in Node.JS Web Servers",
   "author": "Alexander Christie <alex@briefly.io>",
   "scripts": {
-    "build": "./node_modules/.bin/babel src -d lib"
+    "build": "./node_modules/.bin/babel src -d lib",
+    "prepublish": "npm run build"
   },
   "contributors": [
     {
