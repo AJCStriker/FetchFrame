@@ -33,6 +33,7 @@ export class DataType {
             let [dimensionName, dimensionConfig] = dimensionConfigPair
 
             dimensionConfig.name = dimensionName
+            dimensionConfig.cache = dimensionConfig.cache || true
 
             // Verify that the dimension configuration contains a retrieve function
             if ( typeof dimensionConfig.retrieve !== "function" ) {
@@ -40,7 +41,7 @@ export class DataType {
             }
 
             // Verify that if the cache option is set to true then a dimension key has been provided
-            if ( globalCache && dimensionConfig.cache && typeof dimensionConfig.dimensionKey === "function" ) {
+            if ( globalCache && dimensionConfig.cache && typeof dimensionConfig.dimensionKey !== "function" ) {
                 throw new Error("Unable to create dimension " + dimensionName + " as caching is enabled but no dimension key was provided.")
             }
 
@@ -83,6 +84,7 @@ export class DataType {
                     // JSONify the dimension key
                     let serializedDimensionKey = JSON.stringify(dimensionKey)
 
+
                     dimension.clear(serializedDimensionKey).prime(serializedDimensionKey, object)
 
                 }
@@ -112,6 +114,8 @@ export class DataType {
         return loader.load(query)
             .then((result) => {
                 this._notifyUpdate(result)
+
+                return result
             })
             .catch((error) => {
                 this._handleError(loader, query, error)
