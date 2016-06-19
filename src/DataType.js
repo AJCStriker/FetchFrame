@@ -92,9 +92,9 @@ export class DataType {
         // Determine if the error is transient
         if ( dimension._framefetch_config.isTransientError(error) ) {
             dimension.clear(key)
-        } else {
-            throw error
         }
+
+        throw error
 
     }
 
